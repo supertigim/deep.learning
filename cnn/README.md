@@ -2,7 +2,7 @@
 
 This application explains how Convolutional Neural Nerwork works.  
 
-First, it creates 10x10 image where one dot is located randomly, and the location data divided by height and width is set as a labeled data. Second, CNN is trained width*height*100 times. Lastly, you check if CNN can predict the position that the dot is located with maximum error rate. Usually, It takes long time to reach an acceptable result, because it needs to do vision processing.     
+First, it creates 10x10 image where one dot is located randomly, and the location data divided by height and width is set as a labeled data. Second, CNN is trained width * height * 100 times. Lastly, you check if CNN can predict the position that the dot is located with maximum error rate. Usually, It takes long time to reach an acceptable result, because it needs to do vision processing.     
   
 	- Network Input: Image Size 
 	- Number of Hidden Layers: 2

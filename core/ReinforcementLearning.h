@@ -20,10 +20,10 @@ public:
 	void initialize();
 	void initializeConv2D(int height, int width);
 
-	void trainReward();
-	void trainBatch(int tr_num);
-	void trainRewardMemory();
-	void trainReward(const int ix_from_end);
+	void trainReward(bool boost = true);
+	void trainBatch(int tr_num, bool boost = true);
+	void trainRewardMemory(bool boost = true);
+	void trainReward(const int ix_from_end, bool boost);
 	
 	void forward();
 

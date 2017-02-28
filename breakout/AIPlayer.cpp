@@ -117,10 +117,10 @@ void AIPlayer::run(){
 		if(is_training_){
 			if (reward_max < reward_sum) {
 				reward_max = reward_sum;
-				rl_.trainRewardMemory();
+				rl_.trainRewardMemory(false);
 			}
 			else
-				rl_.trainReward();
+				rl_.trainReward(false);
 				//rl_.trainBatch(tr_num);
 				//rl_.trainReward();
 		}			

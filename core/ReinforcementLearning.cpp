@@ -113,12 +113,12 @@ void ReinforcementLearning::initializeConv2D(int height, int width) {
 	next_input_vector_.initialize(nn_.num_input_, true);
 }
 
-void ReinforcementLearning::trainReward() {
+void ReinforcementLearning::trainReward(bool boost) {
 	// train with last memory
-	trainReward(0);	
+	trainReward(0, boost);	
 }
 
-void ReinforcementLearning::trainBatch(int tr_num) {
+void ReinforcementLearning::trainBatch(int tr_num, bool boost) {
 	
 	for (int m_tr = memory_.num_elements_ - 2; m_tr >= num_input_histories_; --m_tr) {
 		
@@ -127,7 +127,7 @@ void ReinforcementLearning::trainBatch(int tr_num) {
 		if (m != memory_.num_elements_ - 2) 
 		{	
 			const int inv_m = m - (memory_.num_elements_ - 1);
-			trainReward(inv_m);					
+			trainReward(inv_m, boost);					
 		}
 
 		if(tr_num > 0)	--tr_num;
@@ -136,13 +136,13 @@ void ReinforcementLearning::trainBatch(int tr_num) {
 
 }
 
-void ReinforcementLearning::trainRewardMemory() {
+void ReinforcementLearning::trainRewardMemory(bool boost) {
 	// std::cout << "State History Num:" << memory_.count() << "\n";
 	for (int ix_from_end = 0; ix_from_end > -(memory_.count() - num_input_histories_); --ix_from_end)
-		trainReward(ix_from_end);
+		trainReward(ix_from_end, boost);
 }
 
-void ReinforcementLearning::trainReward(const int ix_from_end) {
+void ReinforcementLearning::trainReward(const int ix_from_end, bool boost) {
 	// guess next Q value
 	makeInputVectorFromHistory(ix_from_end, next_input_vector_);
 
@@ -161,49 +161,46 @@ void ReinforcementLearning::trainReward(const int ix_from_end) {
 
 	makeInputVectorFromHistory(ix_from_end-1, old_input_vector_);
 
-//#define _NORMAL_CASE_
-#ifdef _NORMAL_CASE_
-
-	nn_.setInputVector(old_input_vector_); // old input
-	nn_.feedForward();
-	nn_.copyOutputVectorTo(false, reward_vector_);
-	reward_vector_[selected_dir] = reward_ix + gamma_ * next_Q;
-	nn_.propBackward(reward_vector_);
-	nn_.check();
-
-#else 
-	
-	//const float high_reward_th = 0.8;
-	const float high_reward_tr_ep = 0.1f;
-
-	//if (high_reward_th <= reward_ix || reward_ix < 0.1)
-	{
-		int count = 0;
-		while (true) {
-		//{
-			nn_.setInputVector(old_input_vector_); // old input
-			nn_.feedForward();
-			nn_.copyOutputVectorTo(false, reward_vector_);
-			
-			const float target = reward_ix + gamma_ * next_Q;
-			const float error = ABS(reward_vector_[selected_dir] - target);
-			
-			reward_vector_[selected_dir] = reward_ix + gamma_ * next_Q;
-
-			nn_.propBackward(reward_vector_);
-
-			nn_.check();
-
-			if (error < high_reward_tr_ep || count > 10000)
-			{
-				//std::cout << "High reward training error " << error << " " << reward_vector_[selected_dir] << " " << (reward_ix + gamma_ * next_Q) << endl;
-				break;
-			}
-			++count;
-		}
-		//std::cout << "High reward training end" << endl;
+	if(!boost){
+		nn_.setInputVector(old_input_vector_); // old input
+		nn_.feedForward();
+		nn_.copyOutputVectorTo(false, reward_vector_);
+		reward_vector_[selected_dir] = reward_ix + gamma_ * next_Q;
+		nn_.propBackward(reward_vector_);
+		nn_.check();	
 	}
-#endif 
+	else {
+		//const float high_reward_th = 0.8;
+		const float high_reward_tr_ep = 0.1f;
+
+		//if (high_reward_th <= reward_ix || reward_ix < 0.1)
+		{
+			int count = 0;
+			while (true) {
+			//{
+				nn_.setInputVector(old_input_vector_); // old input
+				nn_.feedForward();
+				nn_.copyOutputVectorTo(false, reward_vector_);
+				
+				const float target = reward_ix + gamma_ * next_Q;
+				const float error = ABS(reward_vector_[selected_dir] - target);
+				
+				reward_vector_[selected_dir] = reward_ix + gamma_ * next_Q;
+
+				nn_.propBackward(reward_vector_);
+
+				nn_.check();
+
+				if (error < high_reward_tr_ep || count > 10000)
+				{
+					//std::cout << "High reward training error " << error << " " << reward_vector_[selected_dir] << " " << (reward_ix + gamma_ * next_Q) << endl;
+					break;
+				}
+				++count;
+			}
+			//std::cout << "High reward training end" << endl;
+		}
+	}
 }
 
 void ReinforcementLearning::forward() {

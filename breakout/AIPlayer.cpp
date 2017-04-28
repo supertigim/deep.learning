@@ -44,8 +44,8 @@ const int AIPlayer::getSelectedDir(){
 	 const int selected_dir = is_training_ == true ? 
 	 			rl_.nn_.getOutputIXEpsilonGreedy(0.2f) : rl_.nn_.getOutputIXEpsilonGreedy(0.0f);	
 
-	 const F epsilonMinimumValue = 0.001f;
-	 epsilon_ = epsilon_ < epsilonMinimumValue? epsilonMinimumValue: epsilon_*0.0999;
+	 //const F epsilonMinimumValue = 0.001f;
+	 //epsilon_ = epsilon_ < epsilonMinimumValue? epsilonMinimumValue: epsilon_*0.0999;
 
 	 return selected_dir;
 }
